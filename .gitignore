@@ -1,0 +1,15 @@
+# Archivos generados por npm
+/node_modules
+
+# Archivos generados por IDEs o editores
+/.vscode
+/.idea
+
+# Archivos de construcción
+/build
+/dist
+
+# Archivos de dependencias de desarrollo (si no se necesitan en el repositorio)
+/.npm
+/.yarn
+/yarn-error.log

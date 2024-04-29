@@ -1,0 +1,32 @@
+{
+  "name": "e191be2024g4",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon apps.js",
+    "start": "node apps.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eroperouts/E191BE2024G4.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eroperouts/E191BE2024G4/issues"
+  },
+  "homepage": "https://github.com/eroperouts/E191BE2024G4#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "moment-timezone": "^0.5.45",
+    "mongoose": "^8.3.2",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.13"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "type": "module"
+}
