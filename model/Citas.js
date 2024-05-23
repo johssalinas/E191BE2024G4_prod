@@ -34,6 +34,17 @@ const citasSchema = new mongoose.Schema(
 					},
 				},
 			},
+			
+		},
+		medico: {
+			id: {
+				type:String,
+				require:true,
+			},
+			nombre: {
+				type:String,
+				require:true,
+			},
 		},
 		estadoCita: {
 			type: String,

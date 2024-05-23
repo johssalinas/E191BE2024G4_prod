@@ -1,91 +1,62 @@
 import { Router } from "express";
 import Citas from "../model/Citas.js";
-import cron from "node-cron";
-import moment from "moment-timezone";
+
 import nodemailer from "nodemailer";
 
 const router = Router();
 
-/*
-{
-    user: 'fkm7a5zj6o3zkjrp@ethereal.email',
-    pass: 'k7EsMJRTbmKDDf7xHu',
-    smtp: { host: 'smtp.ethereal.email', port: 587, secure: false },
-    imap: { host: 'imap.ethereal.email', port: 993, secure: true },
-    pop3: { host: 'pop3.ethereal.email', port: 995, secure: true },
-    web: 'https://ethereal.email'
-} */
+// Configurar nodemailer
 const transporter = nodemailer.createTransport({
-	host: "smtp.ethereal.email",
-	port: 587,
-	secure: false,
-	auth: {
-		user: "fkm7a5zj6o3zkjrp@ethereal.email",
-		pass: "k7EsMJRTbmKDDf7xHu",
-	},
+    service: 'Gmail', // Cambia el servicio según tus necesidades
+    auth: {
+        user: 'jiperez60@misena.edu.co', // Cambia por tu dirección de correo electrónico
+        pass: 'wlkf amrb nsjd fdpk' // Cambia por tu contraseña 
+    }
 });
 
-// Tarea programada para verificar y enviar recordatorios 1 días antes de la cita
-// Para pruebas tamibien se comprueba cada 30 segundos
-cron.schedule("*/30 * * */1 * *", async () => {
-	const mañana = moment()
-		.tz("America/Bogota")
-		.startOf("day")
-		.add(1, "days")
-		.hour(0)
-		.minute(0)
-		.second(0);
+// Función para enviar correo electrónico
+async function enviarCorreo(destinatario, asunto, cuerpo) {
+    const correoOptions = {
+        from: 'jiperez60@misena.edu.co', // Cambia por tu dirección de correo electrónico
+        to: destinatario,
+        subject: asunto,
+        html: cuerpo
+    };
 
-	const pasadoMañana = moment(mañana)
-		.add(1, "days")
-		.hour(0)
-		.minute(0)
-		.second(0);
-
-	try {
-		// Buscar citas para mañana
-		const citas = await Citas.find({
-			"agenda.fecha": {
-				$gte: mañana.toDate(), // Mayor o igual que la medianoche de hoy
-				$lt: pasadoMañana.toDate(), // Menor que la medianoche del día siguiente
-			},
-			estadoCita: "Confirmada",
-		});
-
-		// Enviar recordatorio para cada cita encontrada
-		for (const cita of citas) {
-			await enviarRecordatorio(cita);
-		}
-	} catch (error) {
-		console.error("Error al enviar recordatorio:", error);
-	}
-});
-
-// Función para enviar el recordatorio
-async function enviarRecordatorio(cita) {
-	try {
-		const data = await transporter.sendMail({
-			from: "jbsalinas@uts.edu.co",
-			to: cita.paciente.correo,
-			subject: "Recordatorio de cita",
-			text: `<p>Este es un recordatorio para tu cita de aquí:</p>
-                   <p>Fecha: ${moment(cita.agenda.fecha)
-											.tz("America/Bogota")
-											.format("YYYY-MM-DD HH:mm:ss")}</p>
-                   <p>No faltes!</p>`,
-		});
-		console.log(
-			"Recordatorio enviado correctamente al correo:",
-			cita.paciente.correo
-		);
-	} catch (error) {
-		console.error(
-			"Error al enviar el recordatorio para la cita:",
-			cita._id,
-			error
-		);
-	}
+    try {
+        await transporter.sendMail(correoOptions);
+        console.log("Correo electrónico enviado correctamente.");
+    } catch (error) {
+        console.error("Error al enviar el correo electrónico:", error);
+    }
 }
+
+// Ruta para crear una cita
+router.post("/Create", async (req, res) => {
+    const cita = new Citas(req.body);
+
+    try {
+        const citaGuardada = await cita.save();
+
+        // Enviar correo electrónico de recordatorio un día antes de la cita
+        const fechaCita = new Date(citaGuardada.agenda.fecha);
+        fechaCita.setDate(fechaCita.getDate() - 1); // Resta un día
+
+        const destinatario = citaGuardada.paciente.correo;
+        const asunto = 'Recordatorio de cita';
+        const cuerpo = `Recuerda que tienes una cita programada para el día ${fechaCita.toLocaleDateString()} a las ${fechaCita.toLocaleTimeString()}.`;
+
+        enviarCorreo(destinatario, asunto, cuerpo);
+
+        res.json({
+            mensaje: "Creada correctamente",
+            data: citaGuardada,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ mensaje: 'Ocurrió un error al crear la cita' });
+    }
+});
 
 //Traer todas las citas
 router.get("/GetAll", async (req, res) => {
@@ -129,21 +100,7 @@ router.get("/SearchByIdCita/:id", async (req, res) => {
 	}
 });
 
-//Crear una cita
-router.post("/Create", async (req, res) => {
-	const cita = new Citas(req.body);
 
-	try {
-		const citaGuardada = await cita.save();
-
-		res.json({
-			mensaje: "Creada correctamente",
-			data: citaGuardada,
-		});
-	} catch (error) {
-		console.log(error);
-	}
-});
 
 //Actualizar estado una cita
 router.patch('/Update/:id', async (req, res) => {
