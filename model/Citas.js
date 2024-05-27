@@ -28,7 +28,6 @@ const citasSchema = new mongoose.Schema(
 		  },
 		  estadoAgenda: {
 			type: String,
-			enum: ['Activa', 'Cancelada'],
 			required: true
 		  },
 		  consultorio: {
@@ -90,7 +89,6 @@ const citasSchema = new mongoose.Schema(
 		  },
 		  tipoDocumentoMedico: {
 			type: String,
-			enum: ['Cédula de ciudadanía', 'Tarjeta de Identidad', 'Cédula de Extranjería', 'Registro Civil de Nacimiento'],
 			required: true
 		  },
 		  documentoMedico: {
@@ -99,7 +97,6 @@ const citasSchema = new mongoose.Schema(
 		  },
 		  estadoMedico: {
 			type: String,
-			enum: ['Activo', 'Cancelado'],
 			required: true
 		  },
 		  especialidad: {
@@ -123,7 +120,6 @@ const citasSchema = new mongoose.Schema(
 		  },
 		  tipoDocumentoPaciente: {
 			type: String,
-			enum: ['Cédula de ciudadanía', 'Tarjeta de Identidad', 'Cédula de Extranjería', 'Registro Civil de Nacimiento'],
 			required: true
 		  },
 		  documentoPaciente: {
@@ -132,7 +128,6 @@ const citasSchema = new mongoose.Schema(
 		  },
 		  estadoMedico: {
 			type: String,
-			enum: ['Activo', 'Cancelado'],
 			required: true
 		  },
 		}
