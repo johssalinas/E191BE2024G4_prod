@@ -2,85 +2,141 @@ import mongoose from "mongoose";
 
 const citasSchema = new mongoose.Schema(
 	{
-		agenda: {
-			id: {
-				type: String,
-				required: true,
-				unique: true,
-			},
-			fecha: {
-				type: Date,
-				required: true,
-			},
-			consultorio: {
-				id: {
-					type: String,
-					required: true,
-					unique: true,
-				},
-				codigo: {
-					type: String,
-					required: true,
-				},
-				sede: {
-					id: {
-						type: String,
-						required: true,
-						unique: true,
-					},
-					direccion: {
-						type: String,
-						required: true,
-					},
-				},
-			},
-			
-		},
-		medico: {
-			id: {
-				type:String,
-				require:true,
-			},
-			nombre: {
-				type:String,
-				require:true,
-			},
-		},
 		estadoCita: {
-			type: String,
-			required: true,
+		  type: String,
+		  enum: ['Activa', 'Cancelada'],
+		  required: true
 		},
 		tipoCita: {
-			type: String,
+		  type: String,
+		  enum: ['Consulta general', 'Odontología', 'Psicología'],
+		  required: true
+		},
+		agenda: {
+		  idAgenda: {
+			type: mongoose.Types.ObjectId,
 			required: true,
+			unique: true
+		  },
+		  fechaAgenda: {
+			type: Date,
+			required: true
+		  },
+		  horaAgenda: {
+			type: String,
+			required: true
+		  },
+		  estadoAgenda: {
+			type: String,
+			enum: ['Activa', 'Cancelada'],
+			required: true
+		  },
+		  consultorio: {
+			idConsultorio: {
+			  type: mongoose.Types.ObjectId,
+			  required: true,
+			  unique: true
+			},
+			codigoConsultorio: {
+			  type: String,
+			  required: true
+			},
+			descripcionConsultorio: {
+			  type: String,
+			  required: true
+			},
+			sede: {
+			  idSede: {
+				type: mongoose.Types.ObjectId,
+				required: true,
+				unique: true
+			  },
+			  nombreSede: {
+				type: String,
+				required: true
+			  },
+			  direccionSede: {
+				type: String,
+				required: true
+			  },
+			  departamento: {
+				type: String,
+				required: true
+			  },
+			  municipio: {
+				type: String,
+				required: true
+			  },
+			  codigoUbicacion: {
+				type: String,
+				required: true
+			  }
+			}
+		  }
+		},
+		medico: {
+		  idMedico: {
+			type: mongoose.Types.ObjectId,
+			required: true,
+			unique: true
+		  },
+		  nombresMedico: {
+			type: String,
+			required: true
+		  },
+		  apellidosMedico: {
+			type: String,
+			required: true
+		  },
+		  tipoDocumentoMedico: {
+			type: String,
+			enum: ['Cédula de ciudadanía', 'Tarjeta de Identidad', 'Cédula de Extranjería', 'Registro Civil de Nacimiento'],
+			required: true
+		  },
+		  documentoMedico: {
+			type: String,
+			required: true
+		  },
+		  estadoMedico: {
+			type: String,
+			enum: ['Activo', 'Cancelado'],
+			required: true
+		  },
+		  especialidad: {
+			type: String,
+			required: true
+		  }
 		},
 		paciente: {
-			id: {
-				type: String,
-				required: true,
-			},
-			nombre: {
-				type: String,
-				required: true,
-			},
-			apellido: {
-				type: String,
-				required: true,
-			},
-			telefono: {
-				type: String,
-				required: true,
-			},
-			correo: {
-				type: String,
-				required: true,
-			},
-		},
+		  idPaciente: {
+			type: mongoose.Types.ObjectId,
+			required: true,
+			unique: true
+		  },
+		  nombresPaciente: {
+			type: String,
+			required: true
+		  },
+		  apellidosPaciente: {
+			type: String,
+			required: true
+		  },
+		  tipoDocumentoPaciente: {
+			type: String,
+			enum: ['Cédula de ciudadanía', 'Tarjeta de Identidad', 'Cédula de Extranjería', 'Registro Civil de Nacimiento'],
+			required: true
+		  },
+		  documentoPaciente: {
+			type: String,
+			required: true
+		  },
+		  estadoMedico: {
+			type: String,
+			enum: ['Activo', 'Cancelado'],
+			required: true
+		  },
+		}
 	},
-	{
-		colletion: "Citas",
-		versionKey: false,
-	}
 );
 
 export default mongoose.model("Citas", citasSchema);
