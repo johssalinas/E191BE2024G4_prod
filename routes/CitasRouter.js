@@ -36,6 +36,8 @@ router.post("/Create", async (req, res) => {
     const cita = new Citas(req.body);
 
     try {
+        console.log(req.body);
+        console.log(cita);
         const citaGuardada = await cita.save();
 
         // Enviar correo electrónico de recordatorio un día antes de la cita
