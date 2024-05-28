@@ -126,7 +126,7 @@ const citasSchema = new mongoose.Schema(
 			type: String,
 			required: true
 		  },
-		  estadoMedico: {
+		  estadoPaciente: {
 			type: String,
 			required: true
 		  },
