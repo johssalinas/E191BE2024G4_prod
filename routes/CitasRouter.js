@@ -5,6 +5,11 @@ import nodemailer from "nodemailer";
 
 const router = Router();
 
+const EstadoCita = Object.freeze({
+	ACTIVA: "Activa",
+	CANCELADA: "Cancelada",
+});
+
 // Configurar nodemailer
 const transporter = nodemailer.createTransport({
     service: 'Gmail', // Cambia el servicio según tus necesidades
@@ -36,12 +41,12 @@ router.post("/Create", async (req, res) => {
     const cita = new Citas(req.body);
 
     try {
-        console.log(req.body);
         console.log(cita);
+        cita.estadoCita = EstadoCita.ACTIVA;
         const citaGuardada = await cita.save();
 
         // Enviar correo electrónico de recordatorio un día antes de la cita
-        const fechaCita = new Date(citaGuardada.agenda.fecha);
+        const fechaCita = new Date(citaGuardada.agenda.fechaAgenda);
         fechaCita.setDate(fechaCita.getDate() - 1); // Resta un día
 
         const destinatario = citaGuardada.paciente.correo;
@@ -50,7 +55,7 @@ router.post("/Create", async (req, res) => {
 
         enviarCorreo(destinatario, asunto, cuerpo);
 
-        res.json({
+        res.status(201).json({
             mensaje: "Creada correctamente",
             data: citaGuardada,
         });
@@ -104,11 +109,11 @@ router.get("/SearchByIdCita/:id", async (req, res) => {
 
 
 
-//Actualizar estado una cita
-router.patch('/Update/:id', async (req, res) => {
+// Cancelar una cita
+router.patch('/CancelCita/:id', async (req, res) => {
     try {
         // Busca la cita por su ID y actualiza el estado
-        const citaActualizada = await Citas.findByIdAndUpdate(req.params.id, { estadoCita: req.body.estadoCita }, { new: true });
+        const citaActualizada = await Citas.findByIdAndUpdate(req.params.id, { estadoCita: EstadoCita.CANCELADA }, { new: true });
 
         res.json({
             mensaje: 'Estado de cita actualizado correctamente',

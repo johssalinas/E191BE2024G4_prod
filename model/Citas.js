@@ -4,8 +4,6 @@ const citasSchema = new mongoose.Schema(
   {
     estadoCita: {
       type: String,
-      enum: ['Activa', 'Cancelada'],
-      required: true
     },
     tipoCita: {
       type: String,
@@ -14,8 +12,7 @@ const citasSchema = new mongoose.Schema(
     agenda: {
       idAgenda: {
         type: String,
-        required: true,
-        unique: true
+        required: true
       },
       fechaAgenda: {
         type: Date,
