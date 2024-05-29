@@ -90,7 +90,7 @@ router.post("/Create", async (req, res) => {
 
 
 // Traer todas las citas (con filtro por rol)
-router.get("/GetAll", verificarRol, async (req, res) => {
+router.get("/GetAllFilters", verificarRol, async (req, res) => {
     try {
         const filtro = req.filtro || {}; // Si no hay filtro, es administrador y ve todas las citas
         const encontradas = await Citas.find(filtro);
@@ -103,6 +103,23 @@ router.get("/GetAll", verificarRol, async (req, res) => {
         res.status(500).json({ mensaje: 'Ocurrió un error al buscar las citas' });
     }
 });
+
+
+
+// Traer todas las citas (sin filtro)
+router.get("/GetAll", async (req, res) => {
+    try {
+        const encontradas = await Citas.find();
+        res.json({
+            mensaje: "Encontradas correctamente",
+            data: encontradas,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ mensaje: 'Ocurrió un error al buscar las citas' });
+    }
+});
+
 
 
 // Traer todas las citas de un paciente
