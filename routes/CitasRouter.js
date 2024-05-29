@@ -45,12 +45,12 @@ const verificarRol = (req, res, next) => {
         return res.status(400).json({ mensaje: 'Rol o ID de usuario no proporcionados' });
     }
 
-    if (rol === 'administrador') {
+    if (rol === 'Administrador') {
         next(); // Si es administrador, puede ver todas las citas
-    } else if (rol === 'medico') {
+    } else if (rol === 'Medico') {
         req.filtro = { "medico.idMedico": id }; 
         next();
-    } else if (rol === 'paciente') {
+    } else if (rol === 'Paciente') {
         req.filtro = { "paciente.idPaciente": id }; 
         next();
     } else {
