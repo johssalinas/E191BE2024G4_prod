@@ -1,28 +1,27 @@
 import { Router } from "express";
 import Citas from "../model/Citas.js";
-
 import nodemailer from "nodemailer";
 
 const router = Router();
 
 const EstadoCita = Object.freeze({
-	ACTIVA: "Activa",
-	CANCELADA: "Cancelada",
+    ACTIVA: "Activa",
+    CANCELADA: "Cancelada",
 });
 
 // Configurar nodemailer
 const transporter = nodemailer.createTransport({
-    service: 'Gmail', // Cambia el servicio según tus necesidades
+    service: 'Gmail',
     auth: {
-        user: 'jiperez60@misena.edu.co', // Cambia por tu dirección de correo electrónico
-        pass: 'wlkf amrb nsjd fdpk' // Cambia por tu contraseña 
+        user: 'jiperez60@misena.edu.co',
+        pass: 'wlkf amrb nsjd fdpk'
     }
 });
 
 // Función para enviar correo electrónico
 async function enviarCorreo(destinatario, asunto, cuerpo) {
     const correoOptions = {
-        from: 'jiperez60@misena.edu.co', // Cambia por tu dirección de correo electrónico
+        from: 'jiperez60@misena.edu.co',
         to: destinatario,
         subject: asunto,
         html: cuerpo
@@ -36,6 +35,31 @@ async function enviarCorreo(destinatario, asunto, cuerpo) {
     }
 }
 
+//  verificar el rol y filtrar citas
+const verificarRol = (req, res, next) => {
+    const rol = req.headers['role'];
+    const id = req.headers['userid']; 
+
+
+    if (!rol || !id) {
+        return res.status(400).json({ mensaje: 'Rol o ID de usuario no proporcionados' });
+    }
+
+    if (rol === 'administrador') {
+        next(); // Si es administrador, puede ver todas las citas
+    } else if (rol === 'medico') {
+        req.filtro = { "medico.idMedico": id }; 
+        next();
+    } else if (rol === 'paciente') {
+        req.filtro = { "paciente.idPaciente": id }; 
+        next();
+    } else {
+        res.status(403).json({ mensaje: "No tiene permisos para ver esta información" });
+    }
+};
+
+
+
 // Ruta para crear una cita
 router.post("/Create", async (req, res) => {
     const cita = new Citas(req.body);
@@ -45,9 +69,8 @@ router.post("/Create", async (req, res) => {
         cita.estadoCita = EstadoCita.ACTIVA;
         const citaGuardada = await cita.save();
 
-        // Enviar correo electrónico de recordatorio un día antes de la cita
         const fechaCita = new Date(citaGuardada.agenda.fechaAgenda);
-        fechaCita.setDate(fechaCita.getDate() - 1); // Resta un día
+        fechaCita.setDate(fechaCita.getDate() - 1);
 
         const destinatario = citaGuardada.paciente.correo;
         const asunto = 'Recordatorio de cita';
@@ -65,54 +88,55 @@ router.post("/Create", async (req, res) => {
     }
 });
 
-//Traer todas las citas
-router.get("/GetAll", async (req, res) => {
-	const encontradas = await Citas.find();
-	try {
-		res.json({
-			mensaje: "Encontradas correctamente",
-			data: encontradas,
-		});
-	} catch (error) {
-		console.log(error);
-	}
+
+// Traer todas las citas (con filtro por rol)
+router.get("/GetAll", verificarRol, async (req, res) => {
+    try {
+        const filtro = req.filtro || {}; // Si no hay filtro, es administrador y ve todas las citas
+        const encontradas = await Citas.find(filtro);
+        res.json({
+            mensaje: "Encontradas correctamente",
+            data: encontradas,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ mensaje: 'Ocurrió un error al buscar las citas' });
+    }
 });
 
-//Traer todas las citas de un paciente
+
+// Traer todas las citas de un paciente
 router.get("/SearchByIdPaciente/:id", async (req, res) => {
-	try {
-		const citas = await Citas.find({ "paciente.id": req.params.id });
+    try {
+        const citas = await Citas.find({ "paciente.id": req.params.id });
 
-		res.json({
-			mensaje: "Citas encontradas correctamente",
-			data: citas,
-		});
-	} catch (error) {
-		console.log(error);
-		res.status(500).json({ mensaje: "Ocurrió un error al buscar las citas" });
-	}
+        res.json({
+            mensaje: "Citas encontradas correctamente",
+            data: citas,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ mensaje: "Ocurrió un error al buscar las citas" });
+    }
 });
 
-//Traer citas por id
+// Traer citas por id
 router.get("/SearchByIdCita/:id", async (req, res) => {
-	try {
-		const cita = await Citas.findById(req.params.id);
+    try {
+        const cita = await Citas.findById(req.params.id);
 
-		res.json({
-			mensaje: "Cita encontrada por id correctamente",
-			data: cita,
-		});
-	} catch (error) {
-		console.log(error);
-	}
+        res.json({
+            mensaje: "Cita encontrada por id correctamente",
+            data: cita,
+        });
+    } catch (error) {
+        console.log(error);
+    }
 });
-
-
 
 // Cancelar una cita
 router.patch('/CancelCita/:id', async (req, res) => {
     try {
-        // Busca la cita por su ID y actualiza el estado
         const citaActualizada = await Citas.findByIdAndUpdate(req.params.id, { estadoCita: EstadoCita.CANCELADA }, { new: true });
 
         res.json({
