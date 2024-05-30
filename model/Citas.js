@@ -12,8 +12,7 @@ const citasSchema = new mongoose.Schema(
     agenda: {
       idAgenda: {
         type: String,
-        required: true,
-        unique: true
+        required: true
       },
       fechaAgenda: {
         type: Date,
