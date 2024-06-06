@@ -67,6 +67,7 @@ router.post("/Create", async (req, res) => {
     try {
         console.log(cita);
         cita.estadoCita = EstadoCita.ACTIVA;
+        cita.asistencia = false;
         const citaGuardada = await cita.save();
 
         const fechaCita = new Date(citaGuardada.agenda.fechaAgenda);
@@ -155,6 +156,22 @@ router.get("/SearchByIdCita/:id", async (req, res) => {
 router.patch('/CancelCita/:id', async (req, res) => {
     try {
         const citaActualizada = await Citas.findByIdAndUpdate(req.params.id, { estadoCita: EstadoCita.CANCELADA }, { new: true });
+
+        res.json({
+            mensaje: 'Estado de cita actualizado correctamente',
+            data: citaActualizada
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ mensaje: 'Ocurrió un error al actualizar la cita' });
+    }
+});
+
+router.patch('/Asistencia/:id', async (req, res) => {
+    try {
+        console.log(req.params.id);
+        console.log(req.body.asistencia);
+        const citaActualizada = await Citas.findByIdAndUpdate(req.params.id, { asistencia: req.body.asistencia }, { new: true });
 
         res.json({
             mensaje: 'Estado de cita actualizado correctamente',

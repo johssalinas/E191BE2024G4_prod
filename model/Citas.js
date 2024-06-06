@@ -9,6 +9,10 @@ const citasSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    asistencia: {
+      type: Boolean,
+      required: true
+    },
     agenda: {
       idAgenda: {
         type: String,
